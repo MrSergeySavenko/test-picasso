@@ -5,11 +5,25 @@ export const postApi = createApi({
   reducerPath: 'post',
   baseQuery: fetchBaseQuery({ baseUrl: 'https://jsonplaceholder.typicode.com/' }),
   endpoints: (builder) => ({
-    getPosts: builder.query<IPost[], void>({
-      // query: () => `posts?_limit=20`,
-      query: () => `posts`,
+    getPosts: builder.query<IPost[], number>({
+      query: () => `posts?_limit=30`,
+
+      serializeQueryArgs: ({ endpointName }) => {
+        return endpointName;
+      },
+
+      merge: (currentCache, newPosts) => {
+        currentCache.push(...newPosts);
+      },
+
+      forceRefetch({ currentArg, previousArg }) {
+        return currentArg !== previousArg;
+      },
+    }),
+    getDetailedPost: builder.query<IPost, string>({
+      query: (id) => `posts/${id}`,
     }),
   }),
 });
 
-export const { useGetPostsQuery } = postApi;
+export const { useGetPostsQuery, useGetDetailedPostQuery } = postApi;
